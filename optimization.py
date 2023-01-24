@@ -1,18 +1,34 @@
+import dataclasses
+
 from ortools.linear_solver import pywraplp
 
 
-def optimize(x_min, x_max, y_min, y_max, min_constraint, max_constraint, x_coef, y_coef, a, b):
-	solver = pywraplp.Solver.CreateSolver('GLOP')
-	x = solver.NumVar(x_min, x_max, 'x')
-	y = solver.NumVar(y_min, y_max, 'y')
+@dataclasses.dataclass
+class LinearOptimizationProblem:
+	x_min: float
+	x_max: float
+	y_min: float
+	y_max: float
+	min_constraint: float
+	max_constraint: float
+	x_coef_constraint: float
+	y_coef_constraint: float
+	x_coef_objective: float
+	y_coef_objective: float
 
-	ct = solver.Constraint(min_constraint, max_constraint, 'ct')
-	ct.SetCoefficient(x, x_coef)
-	ct.SetCoefficient(y, y_coef)
+
+def optimize(problem: LinearOptimizationProblem):
+	solver = pywraplp.Solver.CreateSolver('GLOP')
+	x = solver.NumVar(problem.x_min, problem.x_max, 'x')
+	y = solver.NumVar(problem.y_min, problem.y_max, 'y')
+
+	ct = solver.Constraint(problem.min_constraint, problem.max_constraint, 'ct')
+	ct.SetCoefficient(x, problem.x_coef_constraint)
+	ct.SetCoefficient(y, problem.y_coef_constraint)
 
 	objective = solver.Objective()
-	objective.SetCoefficient(x, a)
-	objective.SetCoefficient(y, b)
+	objective.SetCoefficient(x, problem.x_coef_objective)
+	objective.SetCoefficient(y, problem.y_coef_objective)
 	objective.SetMaximization()
 
 	solver.Solve()
