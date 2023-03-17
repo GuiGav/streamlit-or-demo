@@ -16,8 +16,14 @@ class LinearOptimizationProblem:
 	x_coef_objective: float
 	y_coef_objective: float
 
+@dataclasses.dataclass
+class Point3D:
+	x: float
+	y: float
+	z: float
 
-def optimize(problem: LinearOptimizationProblem):
+
+def optimize(problem: LinearOptimizationProblem) -> Point3D:
 	solver = pywraplp.Solver.CreateSolver('GLOP')
 	x = solver.NumVar(problem.x_min, problem.x_max, 'x')
 	y = solver.NumVar(problem.y_min, problem.y_max, 'y')
@@ -32,4 +38,4 @@ def optimize(problem: LinearOptimizationProblem):
 	objective.SetMaximization()
 
 	solver.Solve()
-	return x.solution_value(), y.solution_value(), objective.Value()
+	return Point3D(x=x.solution_value(), y=y.solution_value(), z=objective.Value())
